@@ -4,7 +4,7 @@ WORKDIR /backend
 
 COPY package*.json ./
 
-RUN npm install --omit=dev
+RUN npm install
 
 RUN git config --global user.email "standard@internal.mail"
 RUN git config --global user.name "Standard Name"
@@ -14,6 +14,6 @@ COPY . .
 ENV PORT=8080
 
 EXPOSE 8080
+EXPOSE 9229
 
-
-CMD ["npm", "start"]
+CMD ["npm", "run", "startdev"]

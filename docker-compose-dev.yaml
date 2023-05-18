@@ -1,0 +1,24 @@
+version: "3.8"
+services:
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: DockerfileDev   
+    ports:
+      - 8081:8080
+      - 9229:9229
+    volumes:
+      #- working-space:/working-space
+      - ./backend/src:/backend/src # directly mount code to speed up development
+    environment:
+      - DB_HOST=db
+  db:
+    image: mysql:8
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+    #volumes:
+    #  - db-data:/var/lib/mysql
+    
+#volumes:
+  #db-data:
+  #working-space:

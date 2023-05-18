@@ -1,44 +1,37 @@
 import fs from "fs";
-import { GetGitObject, mainBranchName } from "./gitwrapper.js";
-
-const mainGitFolder = "/working-space/main";
-const tempFolder = "/working-space/temp";
-
+import { cloneGit, initializeNewGit, mainBranchName } from "./gitwrapper.js";
+import { mainGitFolder, tempFolder } from "./config.js";
 /**
  * Populates the working space with git and neccecary folders
  */
 async function PopulateWorkingSpace(){
+    // if(fs.existsSync("/" + workingspace)){
+    //     fs.rmSync("/" + workingspace, {recursive: true})
+    // }
     if(!fs.existsSync(mainGitFolder)){
         console.log("Making main git folder");
-        fs.mkdirSync(mainGitFolder);
+        fs.mkdirSync(mainGitFolder, {recursive: true});
     }
     if(!fs.existsSync(tempFolder)){
         console.log("Making temporary folder");
-        fs.mkdirSync(tempFolder);
-    }
+        fs.mkdirSync(tempFolder, {recursive: true});
+    } 
 
     if(fs.readdirSync(mainGitFolder).length === 0){
         console.log("Making main git branch");
         //make main git folder
-        await GetGitObject(mainGitFolder).init(true, {"--initial-branch": mainBranchName});
+        await initializeNewGit(mainGitFolder)
+
         console.log("Creating child and pushing to remote.");
         let tempworkingdir = tempFolder + "/temppusher"
-        if(fs.existsSync(tempworkingdir)){
-            fs.rmSync(tempworkingdir, {recursive: true, force: true})
-        }
         fs.mkdirSync(tempworkingdir)
 
-
-        let tempGit = GetGitObject(tempworkingdir);
-        await tempGit.clone(mainGitFolder);
-        fs.writeFileSync(tempworkingdir + "/main/.gitignore", '');
-        await tempGit.add(".gitignore").commit('Created workspace').push('origin', mainBranchName);
+        let tempGit = await cloneGit(tempworkingdir, mainGitFolder)
+        fs.writeFileSync(tempGit.getFolderName() + "/.gitignore", '');
+        await tempGit.add(".gitignore")
+        .then(x => x.commit('Created workspace'))
+        .then(x => x.push())
         fs.rmSync(tempworkingdir, {recursive: true, force: true})
-
-        //temp test
-        fs.mkdirSync(tempworkingdir)
-        let tempGit2 = GetGitObject(tempworkingdir);
-        await tempGit2.clone(mainGitFolder);
     }
 }
 

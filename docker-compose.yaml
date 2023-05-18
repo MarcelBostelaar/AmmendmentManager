@@ -2,10 +2,14 @@ version: "3.8"
 services:
   backend:
     build: "/backend"
+
+
     ports:
       - 8081:8080
+      
     volumes:
       - working-space:/working-space
+      
     environment:
       - DB_HOST=db
   db:
