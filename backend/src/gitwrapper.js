@@ -3,14 +3,14 @@ import fs from "fs";
 import { globalemail } from "./config.js";
 export const mainBranchName = "main";
 
-class gitObject{
+export class GitObject{
     #simpleGitObject
     #folderName 
     constructor(folder){
-        if(!fs.existsSync(folder + "/.git")){
+        if(!fs.existsSync(folder + "/.git") && !fs.existsSync(folder + "/HEAD")){
             throw Error(`Folder ${folder} is not a git folder or does not exist.`)
         }
-        this.#simpleGitObject = GetGitObject(folder)
+        this.#simpleGitObject = GitObject.#getGitObject(folder)
         this.#folderName = folder
     }
 
@@ -34,26 +34,37 @@ class gitObject{
         await this.#simpleGitObject.push();
         return this
     }
+
+    async pull(){
+        await this.#simpleGitObject.pull({"--ff-only": null}); //fast forward only for the current time.
+        return this;
+    }
+
+    static #getGitObject(folder){
+        let options = {
+            baseDir: folder,
+            binary: 'git',
+            maxConcurrentProcesses: 6,
+            trimmed: false,
+        };
+        return simpleGit(options);
+    }
+    
+    static async InitializeNewGit(folder, bare){
+        await GitObject.#getGitObject(folder).init(bare).branch({"-m": null, mainBranchName: null});
+        return new GitObject(folder)
+    }
+    
+    static async CloneGit(into, from){
+        let tempGit = GitObject.#getGitObject(into);
+        await tempGit.clone(from);
+        let gitName = from.split("/").at(-1);
+        let newObject = new GitObject(into + "/" + gitName)
+        await (newObject.#simpleGitObject
+        .fetch({"origin": null})
+        .branch({"--set-upstream-to": mainBranchName})
+        .remote({"set-head": null, mainBranchName: null}))
+        return newObject
+    }
 }
 
-function GetGitObject(folder){
-    let options = {
-        baseDir: folder,
-        binary: 'git',
-        maxConcurrentProcesses: 6,
-        trimmed: false,
-    };
-    return simpleGit(options);
-}
-
-export async function initializeNewGit(folder, bare){
-    await GetGitObject(folder).init(bare, {"--initial-branch": mainBranchName});
-    return new gitObject(folder)
-}
-
-export async function cloneGit(into, from){
-    let tempGit = GetGitObject(into);
-    await tempGit.clone(from);
-    let gitName = from.split("/").at(-1);
-    return new gitObject(into + "/" + gitName)
-}
