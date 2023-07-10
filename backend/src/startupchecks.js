@@ -7,37 +7,22 @@ import { GitObject } from "./gitwrapper.js";
  */
 async function PopulateWorkingSpace(){
     if (isDev) {
-        console.log("Deleting files")
+        console.log("==Deleting files")
         if(fs.existsSync("/" + workingspace)){
+            console.log("==Deleted workspace")
             fs.rmSync("/" + workingspace, {recursive: true})
         }
     }
     
     if(!fs.existsSync(mainGitFolder)){
-        console.log("Making main git folder");
+        console.log("==Making main git folder");
         fs.mkdirSync(mainGitFolder, {recursive: true});
+        console.log("==Making main git branch");
+        await GitObject.InitializeNewBareGit(mainGitFolder);
     }
     if(!fs.existsSync(tempFolder)){
-        console.log("Making temporary folder");
+        console.log("==Making temporary folder");
         fs.mkdirSync(tempFolder, {recursive: true});
-    } 
-
-    if(fs.readdirSync(mainGitFolder).length === 0){
-        console.log("Making main git branch");
-        //make main git folder 
-        await GitObject.InitializeNewGit(mainGitFolder, true)
-
-        console.log("Creating child and pushing to remote.");
-        let tempworkingdir = tempFolder + "/temppusher"
-        fs.mkdirSync(tempworkingdir)
-
-        let tempGit = await GitObject.CloneGit(tempworkingdir, mainGitFolder)
-        await tempGit.pull();
-        fs.writeFileSync(tempGit.getFolderName() + "/.gitignore", '');
-        await tempGit.add(".gitignore")
-        .then(x => x.commit('Created workspace'))
-        .then(x => x.push())
-        fs.rmSync(tempworkingdir, {recursive: true, force: true})
     }
 }
 

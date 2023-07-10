@@ -13,7 +13,7 @@ COPY . .
 
 ENV PORT=8080
 ENV NODE_ENV development
-ENV DEBUG simple-git
+ENV DEBUG simple-git,simple-git:*
 
 EXPOSE 8080
 EXPOSE 9229

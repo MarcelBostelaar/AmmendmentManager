@@ -36,7 +36,7 @@ export class GitObject{
     }
 
     async pull(){
-        await this.#simpleGitObject.pull({"--ff-only": null}); //fast forward only for the current time.
+        await this.#simpleGitObject.pull(["--ff-only"]); //fast forward only for the current time.
         return this;
     }
 
@@ -50,8 +50,29 @@ export class GitObject{
         return simpleGit(options);
     }
     
+    static async InitializeNewBareGit(folder){
+        let randomname = "folder " + Math.random().toString();
+        fs.mkdirSync(randomname);
+        console.log("==Creating new bare git")
+        await GitObject.#getGitObject(folder).init(true).branch(["-m", mainBranchName]);
+        console.log("==Created new bare git")
+        await GitObject.#getGitObject(randomname)
+        .init(false)
+        .addRemote("origin", folder);
+        fs.writeFileSync(randomname + "/.gitignore", '');
+        let x = await new GitObject(randomname).add(".gitignore")
+        .then(x => {console.log("==Added gitignore"); return x})
+        .then(x => x.commit('Created workspace'))
+        .then(x => {console.log("==Committed first commit"); return x});
+        // .then(x => x.#getGitObject)
+        await GitObject.#getGitObject(randomname).push(["--set-upstream", "origin", "master"])
+        console.log("==Pushed first commit");
+        fs.rmSync(randomname, {recursive: true, force: true})
+        return new GitObject(folder)
+    }
+
     static async InitializeNewGit(folder, bare){
-        await GitObject.#getGitObject(folder).init(bare).branch({"-m": null, mainBranchName: null});
+        await GitObject.#getGitObject(folder).init(bare).branch(["-m", mainBranchName]);
         return new GitObject(folder)
     }
     
@@ -61,9 +82,9 @@ export class GitObject{
         let gitName = from.split("/").at(-1);
         let newObject = new GitObject(into + "/" + gitName)
         await (newObject.#simpleGitObject
-        .fetch({"origin": null})
+        .fetch(["origin"])
         .branch({"--set-upstream-to": mainBranchName})
-        .remote({"set-head": null, mainBranchName: null}))
+        .remote(["set-head", mainBranchName]))
         return newObject
     }
 }
