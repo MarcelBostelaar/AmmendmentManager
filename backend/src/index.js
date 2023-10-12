@@ -1,8 +1,8 @@
-import { mainGitFolder } from './config.js';
-import { GitObject } from './gitwrapper.js';
-import { Startup } from './startupchecks.js';
+import { mainGitFolder } from './Backend/config.js';
+import { BareGitFolder } from './Backend/gitwrapper.js';
+import { Startup } from './Backend/startupchecks.js';
 import express from 'express';
-import { isDev } from './util.js';
+import { isDev } from './Backend/util.js';
 import fs from "fs";
 const app = express();
 
@@ -27,7 +27,7 @@ const port = process.env.PORT || 8080;
 if(fs.existsSync("/main")){
     fs.rmSync("/main", {recursive: true})
 }
-GitObject.CloneGit("/", mainGitFolder).then(x => x.pull())
+BareGitFolder.CloneGit("/", mainGitFolder).then(x => x.pull())
 
 //end temp
 

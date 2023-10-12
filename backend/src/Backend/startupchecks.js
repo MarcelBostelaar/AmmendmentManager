@@ -1,7 +1,7 @@
 import fs from "fs";
 import { mainGitFolder, tempFolder, workingspace } from "./config.js";
 import { isDev } from "./util.js";
-import { GitObject } from "./gitwrapper.js";
+import { BareGitFolder } from "./gitwrapper.js";
 /**
  * Populates the working space with git and neccecary folders
  */
@@ -18,7 +18,7 @@ async function PopulateWorkingSpace(){
         console.log("==Making main git folder");
         fs.mkdirSync(mainGitFolder, {recursive: true});
         console.log("==Making main git branch");
-        await GitObject.InitializeNewBareGit(mainGitFolder);
+        await BareGitFolder.InitializeNewBareGit(mainGitFolder);
     }
     if(!fs.existsSync(tempFolder)){
         console.log("==Making temporary folder");
