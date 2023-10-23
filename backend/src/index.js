@@ -1,10 +1,18 @@
-import { mainGitFolder } from './Backend/config.js';
-import { BareGitFolder } from './Backend/gitwrapper.js';
-import { Startup } from './Backend/startupchecks.js';
+import { mainGitFolder } from './config.js';
+import { BareGitFolder } from './gitwrapper.js';
+import cookieParser from 'cookie-parser';
+import { Startup } from './startupchecks.js';
 import express from 'express';
-import { isDev } from './Backend/util.js';
+import { isDev } from './util.js';
 import fs from "fs";
-const app = express();
+import { DummyAuth } from './login.js';
+import bodyParser from "body-parser";
+
+var app = express();
+
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(cookieParser());
+app.use(bodyParser.json());
 
 if(isDev){
     //Allows debugger to attach at start of the script
@@ -19,7 +27,10 @@ await Startup();
 app.get('/', (req, res) =>
     res.json({ message: "Docker is ez bruh"})
 );
- 
+app.post('/login', DummyAuth);
+app.get("/getdocument", (req, res) => res.json({ message: "Not implemented. Check for published nature and authorization"}))
+app.get("/getsupporters", (req, res) => res.json({ message: "Not implemented. Check for published nature and authorization"}))
+
 const port = process.env.PORT || 8080;
 
 //temp
@@ -27,7 +38,7 @@ const port = process.env.PORT || 8080;
 if(fs.existsSync("/main")){
     fs.rmSync("/main", {recursive: true})
 }
-BareGitFolder.CloneGit("/", mainGitFolder).then(x => x.pull())
+// BareGitFolder.CloneGit("/", mainGitFolder).then(x => x.pull())
 
 //end temp
 

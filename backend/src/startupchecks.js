@@ -18,7 +18,7 @@ async function PopulateWorkingSpace(){
         console.log("==Making main git folder");
         fs.mkdirSync(mainGitFolder, {recursive: true});
         console.log("==Making main git branch");
-        await BareGitFolder.InitializeNewBareGit(mainGitFolder);
+        BareGitFolder.InitializeNew(mainGitFolder);
     }
     if(!fs.existsSync(tempFolder)){
         console.log("==Making temporary folder");
