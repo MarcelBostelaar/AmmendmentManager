@@ -1,0 +1,41 @@
+  Users Table
+  +-----------------+--------------+-------------------+
+  | Field Name      | Data Type    | Constraints       |
+  +-----------------+--------------+-------------------+
+  | UserID          | INT          | Primary key       |
+  | Email           | VARCHAR(50)  | Unique            |
+  | Password        | VARCHAR(255) |                   |
+  | Role            | INT          |                   |
+  +-----------------+--------------+-------------------+
+
+  Branches Table
+  +-------------------------+------------------+----------------------------+
+  | Field Name              | Data Type        | Constraints                |
+  +-------------------------+------------------+----------------------------+
+  | ID                      | INT              | Primary key                |
+  | ParentBranchID          | INT              | Nullable,                  |
+  |                         |                  | Foreign Key (Branches.ID)  |
+  | Title                   | VARCHAR(255)     |                            |
+  | PrimaryDocument         | VARCHAR(255)     |                            |
+  | PrimaryExplanatoryDoc   | VARCHAR(255)     |                            |
+  +-------------------------+------------------+----------------------------+
+
+  Permissions Table
+  +-------------------+------------+---------------------------+
+  | Field Name        | Data Type  | Constraints               |
+  +-------------------+------------+---------------------------+
+  | PermissionID      | INT        | Primary key               |
+  | UserID            | INT        | Foreign Key (Users.ID)    |
+  | BranchID          | INT        | Foreign Key (Branches.ID) |
+  | IsOwner           | BOOLEAN    |                           |
+  +-------------------+------------+---------------------------+
+
+    Commits Table
+  +-------------------------+------------------+----------------------------+
+  | Field Name              | Data Type        | Constraints                |
+  +-------------------------+------------------+----------------------------+
+  | Hash                    | VARCHAR(255)     | Primary key                |
+  | Branch                  | INT              | Foreign Key (Branches.ID)  |
+  | IsPublished             | BOOLEAN          |                            |
+  | AcceptationStatus       | INT              |                            |
+  +-------------------------+------------------+----------------------------+

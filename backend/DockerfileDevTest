@@ -17,4 +17,4 @@ ENV NODE_ENV development
 EXPOSE 8080
 EXPOSE 9229
 
-CMD ["npm", "run", "startdev"]
+CMD ["npm", "test"]

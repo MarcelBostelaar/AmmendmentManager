@@ -45,6 +45,7 @@ export class BareGitFolder {
 
 export class TempGitfolder {
     #folder
+    #branchname
     constructor(intoFolder, remote, hashToClone) {
         /**
          * Creates and clones a new Git working folder into the given location.
@@ -66,6 +67,10 @@ export class TempGitfolder {
         return executeGitCommand(this.#folder, "rev-parse", "HEAD");
     }
 
+    getCurrentBranchName(){
+        return this.#branchname;
+    }
+
     getFolderName() {
         return this.#folder;
     }
@@ -76,7 +81,7 @@ export class TempGitfolder {
          * Returns the commiit hash of the created commit.
          */
         let authorInfo = `${committerName} <${committerEmail}>`;
-        executeGitCommand(this.#folder, "commit", "-m", `"${commitName}"`, `--author="${authorInfo}"`);
+        executeGitCommand(this.#folder, "commit", "-m", `"${commitName}"`, `--author="${authorInfo}"`, "--allow-empty");
         return this.getCurrentHash();
     }
 
@@ -88,5 +93,23 @@ export class TempGitfolder {
     push() {
         let result = executeGitCommand(this.#folder, "push");
         return result;
+    }
+
+    pull() {
+        //TODO
+    }
+
+    merge(branchToMerge){
+        //TODO
+    }
+
+    hasMergeConflicts(){
+        //TODO
+        //if message contains "You have unmerged paths" then true else false
+    }
+
+    createNewBranch(name){
+        //TODO
+        //save new branch together with parent branch in branch table database
     }
 }
