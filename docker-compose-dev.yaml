@@ -1,9 +1,12 @@
 version: "3.8"
 services:
-  # frontend:
-  #   build: "/frontend"
-  #   ports:
-  #     - 8080:8080
+  frontend:
+    build: "/frontend"
+    ports:
+      - 8080:8080
+    volumes:
+      #- working-space:/working-space
+      - ./frontend/src:/frontend/src # directly mount code to speed up development
   backend:
     build: 
       context: ./backend

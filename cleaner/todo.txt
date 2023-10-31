@@ -1,1 +1,0 @@
-Periodic script that checks for orphaned temporary folders

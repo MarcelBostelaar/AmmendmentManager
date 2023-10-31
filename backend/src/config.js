@@ -5,3 +5,4 @@ export const workingspace = "working-space";
 export const mainGitFolder = "/" + workingspace + "/" + mainName;
 export const tempFolder = "/working-space/temp";
 
+ 

@@ -1,0 +1,1 @@
+Make sure the folder with the primary git directorie(s) is a volume, but temporary folders are party of the docker container, they dont need to be saved.

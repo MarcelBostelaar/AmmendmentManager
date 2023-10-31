@@ -1,13 +1,22 @@
 import fs from "fs";
 import { globalemail, globalname } from "./config.js";
 export const mainBranchName = "main";
+import path from 'path';
+import {spawnSync} from 'child_process';
 
-const fs = require('fs');
-const path = require('path');
+function executeGitCommand(workingDirectory, ...args){
+    const result = spawnSync('git', args, {cwd: workingDirectory});
+    if (result.error) {
+        // Handle the error
+        console.error('Error executing command:', result.error);
+        return result.stdout.toString();
+    }
 
-function executeGitCommand(command, workingDirectory) {
-    const { spawnSync } = require('child_process');
-    const result = spawnSync(command);
+    if (result.status !== 0) {
+        // The command exited with a non-zero status, indicating an error
+        console.error(`Command exited with status ${result.status}`);
+        return result.stdout.toString();
+    }
     return result.stdout.toString();
 }
 
@@ -23,33 +32,14 @@ export class BareGitFolder {
 
     static InitializeNew(folder) {
         if (!fs.existsSync(folder)) {
-            throw new Error(`Folder '${folder}' does not exist.`);
+            fs.mkdirSync(folder, {recursive: true});
         }
 
-        const gitFolderPath = path.join(folder, '.git');
-        if (fs.existsSync(gitFolderPath)) {
-            throw new Error(`A Git repository already exists in '${folder}'.`);
+        if (fs.readdirSync(folder).length != 0)/*check if folder is empty*/ {
+            throw new Error(`Folder not empty, cant create a bare git repo here: '${folder}'.`);
         }
-
-        fs.mkdirSync(gitFolderPath);
-        executeGitCommand('git --git-dir=' + gitFolderPath + ' init --bare');
-
-        return new BareGitFolder(gitFolderPath);
-    }
-
-    static CloneGit(into, from) {
-        if (!fs.existsSync(into)) {
-            throw new Error(`Folder '${into}' does not exist.`);
-        }
-
-        const gitFolderPath = path.join(into, '.git');
-        if (fs.existsSync(gitFolderPath)) {
-            throw new Error(`A Git repository already exists in '${into}'.`);
-        }
-
-        executeGitCommand(`git clone --bare ${from} ${gitFolderPath}`);
-
-        return new BareGitFolder(gitFolderPath);
+        executeGitCommand(folder, "init", "--bare");
+        return new BareGitFolder(folder);
     }
 }
 
@@ -62,11 +52,10 @@ export class TempGitfolder {
          */
         this.#folder = intoFolder;
         fs.mkdirSync(this.#folder, {recursive: true});
-        executeGitCommand(`git init`, this.#folder);
-        executeGitCommand(`git remote add origin ${remote}`, this.#folder);
-        executeGitCommand(`git fetch origin ${hashToClone}`, this.#folder);
-        executeGitCommand(`git reset origin ${hashToClone}`, this.#folder);
-        // let clonedFolder = path.join(into, path.basename(from, '.git'));
+        executeGitCommand(this.#folder, "init");
+        executeGitCommand(this.#folder, "remote", "add", "origin", remote);
+        executeGitCommand(this.#folder, "fetch", "origin", hashToClone);
+        executeGitCommand(this.#folder, "reset", "origin", hashToClone);
     }
 
     destructor() {
@@ -74,7 +63,7 @@ export class TempGitfolder {
      }
 
     getCurrentHash(){
-        return executeGitCommand("git rev-parse HEAD");
+        return executeGitCommand(this.#folder, "rev-parse", "HEAD");
     }
 
     getFolderName() {
@@ -87,17 +76,17 @@ export class TempGitfolder {
          * Returns the commiit hash of the created commit.
          */
         let authorInfo = `${committerName} <${committerEmail}>`;
-        executeGitCommand(`git commit -m "${commitName}" --author="${authorInfo}"`, this.#folder);
+        executeGitCommand(this.#folder, "commit", "-m", `"${commitName}"`, `--author="${authorInfo}"`);
         return this.getCurrentHash();
     }
 
     add(nameOrWildcard) {
-        let result = executeGitCommand('git add ' + nameOrWildcard, this.#folder);
+        let result = executeGitCommand(this.#folder, "add", nameOrWildcard);
         return result;
     }
 
     push() {
-        let result = executeGitCommand('git push', this.#folder);
+        let result = executeGitCommand(this.#folder, "push");
         return result;
     }
 }
