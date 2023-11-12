@@ -23,7 +23,7 @@ class Database {
         });
     }
 
-    registerUser(username, password){
+    registerUser(email, password){
 
     }
 
