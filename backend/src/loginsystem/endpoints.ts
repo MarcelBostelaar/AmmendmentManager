@@ -1,4 +1,4 @@
-import {database} from "../globals.js";
+import {userAccountDatabase as database} from "../globals.js";
 
 /**
  * Handles user registration. Expects the fields email and password in the POST
