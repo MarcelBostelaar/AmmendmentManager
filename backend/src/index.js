@@ -1,11 +1,11 @@
-import { mainGitFolder } from './config.js';
+import { mainGitFolder, sessionsecretkey } from './config.js';
 import { BareGitFolder } from './gitwrapper.js';
 import cookieParser from 'cookie-parser';
 import { Startup } from './startupchecks.js';
 import express from 'express';
 import { isDev } from './util.js';
 import fs from "fs";
-import { DummyAuth } from './login.js';
+import {register, login, logout, logoutSpecificToken} from "./loginsystem/endpoints.js";
 import bodyParser from "body-parser";
 
 var app = express();
@@ -13,6 +13,11 @@ var app = express();
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(bodyParser.json());
+app.use(session({
+    secret: process.env.SECRETSESSIONKEY,
+    resave: false,
+    saveUninitialized: false,
+}));
 
 if(isDev){
     //Allows debugger to attach at start of the script
@@ -27,9 +32,20 @@ await Startup();
 app.get('/', (req, res) =>
     res.json({ message: "Docker is ez bruh"})
 );
-app.post('/login', DummyAuth);
 app.get("/getdocument", (req, res) => res.json({ message: "Not implemented. Check for published nature and authorization"}))
 app.get("/getsupporters", (req, res) => res.json({ message: "Not implemented. Check for published nature and authorization"}))
+
+app.post("/login", login);
+app.post("/register", register);
+app.post("/logout", logout);
+app.post("/logoutSpecicificToken", logoutSpecificToken);
+
+//General error handling
+app.use(function(err, req, res, next) {
+    // formulate an error response here
+    console.log(err);
+    res.status(500).send("Internal server error")
+});
 
 
 const port = process.env.PORT || 8080;

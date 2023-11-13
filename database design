@@ -2,7 +2,7 @@
   +-----------------+--------------+-------------------+
   | Field Name      | Data Type    | Constraints       |
   +-----------------+--------------+-------------------+
-  | UserID          | INT          | Primary key       |
+  | ID              | INT          | Primary key       |
   | Email           | VARCHAR(50)  | Unique            |
   | Password        | VARCHAR(255) |                   |
   | Role            | INT          |                   |
@@ -39,3 +39,14 @@
   | IsPublished             | BOOLEAN          |                            |
   | AcceptationStatus       | INT              |                            |
   +-------------------------+------------------+----------------------------+
+
+    Tokens Table
+  +------------------+--------------+-----------------------------+
+  | Field Name       | Data Type    | Constraints                 |
+  +------------------+--------------+-----------------------------+
+  | TokenID          | INT          | PRIMARY KEY                 |
+  | UserID           | INT          | FOREIGN KEY (Users.ID)      |
+  | TokenValue       | VARCHAR(255) |                             |
+  | ExpiryDate       | TIMESTAMP    |                             |
+  +------------------+--------------+-----------------------------+
+

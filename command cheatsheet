@@ -1,1 +1,2 @@
 Build dev: docker-compose -f docker-compose-dev.yaml  up --build --force-recreate
+Remove all volumes: docker-compose down -v

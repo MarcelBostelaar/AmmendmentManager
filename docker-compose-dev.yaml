@@ -19,13 +19,21 @@ services:
       - ./backend/src:/backend/src # directly mount code to speed up development
     environment:
       - DB_HOST=db
+      - MYSQL_DATABASE=${DATABASE}
+      - MYSQL_USER=${USER}
+      - MYSQL_PASSWORD=${PASSWORD}
+      - SECRETSESSIONKEY=${SECRETSESSIONKEY}
+      - DBCONNECTIONLIMIT=${DBCONNECTIONLIMIT}
   db:
     image: mysql:8
     environment:
-      MYSQL_ROOT_PASSWORD: password
-    #volumes:
-    #  - db-data:/var/lib/mysql
-    
+      - MYSQL_DATABASE=${DATABASE}
+      - MYSQL_ROOT_PASSWORD=${ROOT_PASSWORD}
+      - MYSQL_USER=${USER}
+      - MYSQL_PASSWORD=${PASSWORD}
+    volumes:
+      - "./databaseinit/init.sql:/docker-entrypoint-initdb.d/1.sql"
+     
 #volumes:
   #db-data:
   #working-space:
