@@ -6,6 +6,13 @@ COPY package*.json ./
 
 RUN npm install
 
+
+
+
+
+
+
+
 RUN git config --global user.email "standard@internal.mail"
 RUN git config --global user.name "Standard Name"
 

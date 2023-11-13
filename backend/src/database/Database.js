@@ -1,4 +1,4 @@
-const mysql = require('mysql2');
+import {mysql} from "mysql2";
 import {GenerateRandomToken} from "../util.js";
 
 class Database {

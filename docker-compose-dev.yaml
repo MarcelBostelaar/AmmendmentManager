@@ -19,7 +19,7 @@ services:
       - ./backend/src:/backend/src # directly mount code to speed up development
     environment:
       - DB_HOST=db
-      - MYSQL_DATABASE=${DATABASE}
+      - MYSQL_DATABASE=ammendmentmanagerdb
       - MYSQL_USER=${USER}
       - MYSQL_PASSWORD=${PASSWORD}
       - SECRETSESSIONKEY=${SECRETSESSIONKEY}

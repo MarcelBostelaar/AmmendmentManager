@@ -26,7 +26,7 @@ services:
       - DBCONNECTIONLIMIT=${DBCONNECTIONLIMIT}
   db:
     build: "/database"
-    ports:
+    # ports:
       # - 3306:3306  #Doesnt need to be exposed to the web for production, can be exposed temporarily for troubleshooting or manual database editing.
     expose:
       - 3306

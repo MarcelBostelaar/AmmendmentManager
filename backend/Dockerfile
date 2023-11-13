@@ -4,7 +4,14 @@ WORKDIR /backend
 
 COPY package*.json ./
 
-RUN npm install --omit=dev
+RUN npm install
+
+RUN npx tsc # Compile the typescript
+
+RUN rm -r node_modules #remove old packages
+RUN rm -r src # remove ts source code
+
+RUN npm install --omit=dev # install packages without dev dependencies
 
 RUN git config --global user.email "standard@internal.mail"
 RUN git config --global user.name "Standard Name"
