@@ -10,7 +10,7 @@ services:
   backend:
     build: 
       context: ./backend
-      dockerfile: DockerfileDevTest  
+      dockerfile: DockerfileDevTest
     ports:
       - 8081:8080
       - 9229:9229
@@ -19,13 +19,26 @@ services:
       - ./backend/src:/backend/src # directly mount code to speed up development
     environment:
       - DB_HOST=db
+      - MYSQL_DATABASE=${DATABASE}
+      - MYSQL_USER=${USER}
+      - MYSQL_PASSWORD=${PASSWORD}
+      - SECRETSESSIONKEY=${SECRETSESSIONKEY}
+      - DBCONNECTIONLIMIT=${DBCONNECTIONLIMIT}
   db:
+    build: "/database"
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
     image: mysql:8
     environment:
-      MYSQL_ROOT_PASSWORD: password
-    #volumes:
-    #  - db-data:/var/lib/mysql
+      - MYSQL_DATABASE=ammendmentmanagerdb
+      - MYSQL_ROOT_PASSWORD=${ROOT_PASSWORD}
+      - MYSQL_USER=${USER}
+      - MYSQL_PASSWORD=${PASSWORD}
+    # volumes:
+    #   - db-data:/var/lib/mysql
     
-#volumes:
-  #db-data:
-  #working-space:
+# volumes:
+#   db-data:
+#   working-space:

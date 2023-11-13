@@ -27,7 +27,7 @@ services:
   db:
     build: "/database"
     ports:
-      - 3306:3306
+      # - 3306:3306  #Doesnt need to be exposed to the web for production, can be exposed temporarily for troubleshooting or manual database editing.
     expose:
       - 3306
     image: mysql:8
@@ -38,7 +38,6 @@ services:
       - MYSQL_PASSWORD=${PASSWORD}
     volumes:
       - db-data:/var/lib/mysql
-    #   - "./databaseinit/init.sql:/docker-entrypoint-initdb.d/1.sql"
     
 volumes:
   db-data:
