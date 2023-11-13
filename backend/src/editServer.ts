@@ -1,3 +1,6 @@
+import * as fs from 'fs';
+import path from 'path';
+
 /*
 class editServer
     save function, which overwrites the existing file in the folder, then uses the add and commit and push function to push it to the remote
@@ -5,6 +8,9 @@ class editServer
 */
 
 class EditServer {
+    tempGitFolder;
+    database;
+    currentUser;
     /**
      * 
      * @param {*} remote Remote to clone from
@@ -20,13 +26,13 @@ class EditServer {
         this.currentUser = user;
     }
 
-    save(files) {
+    save(files : Array<file>) {
         files.forEach(file => {
             let filePath = path.join(this.tempGitFolder.getFolderName(), file.name);
             fs.writeFileSync(filePath, file.content);
         });
         this.tempGitFolder.add(".");
-        this.tempGitFolder.commit(`Updated ${", ".join(files.map(x => x.name))}`);
+        this.tempGitFolder.commit(`Updated ${(files.map(x => x.name).join(", "))}`);
         this.tempGitFolder.pull();
         if(this.tempGitFolder.hasMergeConflicts()){
             this.tempGitFolder.add(".");
@@ -37,7 +43,7 @@ class EditServer {
     }
 
     publish(fileName, fileContent) {
-        this.save(fileName, fileContent);
+        this.save(fileName);
         const latestCommitHash = this.tempGitFolder.getCurrentHash();
 
         this.database.addToAmendmentsTable({
@@ -45,4 +51,13 @@ class EditServer {
             commitHash: latestCommitHash
         });
     }
+}
+
+function createTempFolder(startingpointHash: any, isNewBranch: any) {
+    throw new Error('Function not implemented.');
+}
+
+type file = {
+    name : string,
+    content: string
 }

@@ -4,7 +4,7 @@ export const mainBranchName = "main";
 import path from 'path';
 import {spawnSync} from 'child_process';
 
-function executeGitCommand(workingDirectory, ...args){
+function executeGitCommand(workingDirectory, ...args : Array<string>){
     const result = spawnSync('git', args, {cwd: workingDirectory});
     if (result.error) {
         // Handle the error
@@ -21,7 +21,7 @@ function executeGitCommand(workingDirectory, ...args){
 }
 
 export class BareGitFolder {
-    #folderLocation;
+    #folderLocation : string;
     constructor(folderLocation) {
         this.#folderLocation = folderLocation;
     }
@@ -44,8 +44,8 @@ export class BareGitFolder {
 }
 
 export class TempGitfolder {
-    #folder
-    #branchname
+    #folder : string
+    #branchname : string
     constructor(intoFolder, remote, hashToClone) {
         /**
          * Creates and clones a new Git working folder into the given location.
@@ -97,19 +97,24 @@ export class TempGitfolder {
 
     pull() {
         //TODO
+        throw new Error("Method not implemented.");
     }
 
     merge(branchToMerge){
         //TODO
+        throw new Error("Method not implemented.");
     }
 
     hasMergeConflicts(){
         //TODO
         //if message contains "You have unmerged paths" then true else false
+        throw new Error("Method not implemented.");
     }
 
     createNewBranch(name){
         //TODO
         //save new branch together with parent branch in branch table database
+        throw new Error("Method not implemented.");
+
     }
 }

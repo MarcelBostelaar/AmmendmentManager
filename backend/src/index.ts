@@ -1,5 +1,5 @@
-import { mainGitFolder, sessionsecretkey } from './config.js';
-import { BareGitFolder } from './gitwrapper.js';
+// import { mainGitFolder } from './config.js';
+// import { BareGitFolder } from './gitwrapper.js';
 import cookieParser from 'cookie-parser';
 import { Startup } from './startupchecks.js';
 import express from 'express';
@@ -7,6 +7,7 @@ import { isDev } from './util.js';
 import fs from "fs";
 import {register, login, logout, logoutSpecificToken} from "./loginsystem/endpoints.js";
 import bodyParser from "body-parser";
+import session from "express-session";
 
 var app = express();
 

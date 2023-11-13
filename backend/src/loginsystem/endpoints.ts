@@ -1,4 +1,4 @@
-import database from "../globals.js";
+import {database} from "../globals.js";
 
 /**
  * Handles user registration. Expects the fields email and password in the POST
@@ -73,7 +73,7 @@ export async function logout(req, res) {
     }
 
     req.session.destroy();
-    await myDatabase.destroyToken(token);
+    await database.destroyToken(token);
     res.status(200).json({ message: 'Logout successful.' });
 }
 
@@ -99,14 +99,14 @@ export async function logoutSpecificToken(req, res) {
 export async function changePassword(req, res){
     const {token, email, newPassword} = req.body.specificToken;
 
-    if (!specificToken || !email || !newPassword) {
+    if (!token || !email || !newPassword) {
         return res.status(400).json({ error: 'token, email and newPassword required.' });
     }
-    let user = database.getTokensUser(token);
+    let user = await database.getTokensUser(token);
     if(user == null){
         return res.status(401).json({ error: 'Invalid token, could not find valid token associated with username.' });
     }
-    await database.changePassword(newPassword);
+    await database.changePassword(email, newPassword);
     await database.purgeAllTokens(user.ID);
     res.status(200).json({message: "Password succesfully changed."});
 }

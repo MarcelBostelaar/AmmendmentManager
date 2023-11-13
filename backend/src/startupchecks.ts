@@ -28,17 +28,6 @@ async function PopulateWorkingSpace(){
     }
 }
 
-async function DatabaseCheck(){
-    database = new Database(dbConfig(true));
-    if(await database.isFreshInstall()){
-        console.log("Fresh install detected, building tables.");
-        await database.buildTables();
-    }
-    database.closeConnection();
-    database = new Database(dbConfig(false));
-}
-
 export async function Startup(){
-    // await DatabaseCheck();
     await PopulateWorkingSpace();
 }

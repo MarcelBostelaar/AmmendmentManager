@@ -1,4 +1,4 @@
-import database from "../globals.js";
+import {database} from "../globals.js";
 
 export const AuthRequirements = {
 	None: 0,

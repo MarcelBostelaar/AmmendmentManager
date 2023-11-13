@@ -1,7 +1,10 @@
-import {mysql} from "mysql2";
-import {GenerateRandomToken} from "../util.js";
+import mysql from "mysql2";
+import uuid4 from "uuid4";
+import bcrypt from "bcrypt";
+import { timeStamp } from "console";
+import { promises } from "dns";
 
-class Database {
+export default class Database {
     pool;
     constructor(config) {
         this.pool = mysql.createPool(config);
@@ -81,8 +84,8 @@ class Database {
             return null;
         }
 
-        const token = GenerateRandomToken();
-        let validUntil = Date.now() + Date(process.env.TOKENEXPIRATIONTIME);
+        const token = uuid4();
+        let validUntil = new Date(Date.now() + new Date(process.env.TOKENEXPIRATIONTIME).getMilliseconds());
         await this.#executeSQL('INSERT INTO Tokens (UserID, TokenValue, ExpiryDate) VALUES (?, ?, ?)', [token, user.ID, validUntil]);
         return token;
     }
@@ -131,7 +134,7 @@ class Database {
         FROM Users
         INNER JOIN Tokens ON Users.ID = Tokens.UserID
         WHERE Tokens.TokenValue = ? AND Tokens.ExpiryDate > CURRENT_TIMESTAMP();`
-        let result = this.#executeSQL(sql, [token]);
+        let result = await this.#executeSQL(sql, [token]);
         if(result.length == 0){
             return null;
         }
@@ -139,12 +142,21 @@ class Database {
     }
 
     async #executeSQL(sql, values = []){
-        const connection = await pool.getConnection();
+        const connection = await this.pool.getConnection();
         console.log('Connected to the MySQL server.');
      
         const [rows, fields] = await connection.execute(sql, values);
 
         connection.release();
         return rows;
+    }
+
+    
+    async isAdmin(token: any) : Promise<boolean> {
+        throw new Error("Method not implemented.");
+    }
+
+    purgeAllTokens(ID: number) {
+        throw new Error("Method not implemented.");
     }
 }
