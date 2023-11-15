@@ -1,4 +1,4 @@
-import { MySqlDatabaseConnector } from "./Database.js";
+import MySqlDatabaseConnector from "./Database.js";
 
 export class BranchDatabase {
     private connector;

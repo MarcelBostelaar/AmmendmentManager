@@ -1,4 +1,4 @@
-FROM node:20
+FROM node:20-alpine as build
 
 WORKDIR /frontend
 
@@ -8,10 +8,13 @@ RUN npm install --omit=dev
 
 COPY . .
 
-ENV PORT=8080
-ENV NODE_ENV production
+RUN npm run build
 
-EXPOSE 8080
+#release step
+FROM nginx:mainline-alpine3.18-slim as release
 
+COPY --from=build /frontend/build /usr/share/nginx/html
 
-CMD ["npm", "start"]
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
