@@ -5,6 +5,8 @@ CREATE TABLE Users (
     ID INT AUTO_INCREMENT PRIMARY KEY,
     Email VARCHAR(50) UNIQUE,
     Password VARCHAR(255),
+    ResetToken VARCHAR(255),
+    ResetTokenExpiryDate TIMESTAMP,
     Role INT
 );
 
@@ -38,7 +40,7 @@ CREATE TABLE Commits (
 );
 
 -- Tokens Table
-CREATE TABLE Tokens (
+CREATE TABLE LoginTokens (
     TokenValue VARCHAR(255) PRIMARY KEY,
     UserID INT,
     ExpiryDate TIMESTAMP,

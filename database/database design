@@ -1,12 +1,14 @@
   Users Table
-  +-----------------+--------------+-------------------+
-  | Field Name      | Data Type    | Constraints       |
-  +-----------------+--------------+-------------------+
-  | ID              | INT          | Primary key       |
-  | Email           | VARCHAR(50)  | Unique            |
-  | Password        | VARCHAR(255) |                   |
-  | Role            | INT          |                   |
-  +-----------------+--------------+-------------------+
+  +----------------------+--------------+-------------------+
+  | Field Name           | Data Type    | Constraints       |
+  +----------------------+--------------+-------------------+
+  | ID                   | INT          | Primary key       |
+  | Email                | VARCHAR(50)  | Unique            |
+  | Password             | VARCHAR(255) |                   |
+  | ResetToken           | VARCHAR(255) |                   |
+  | ResetTokenExpiryDate | VARCHAR(255) |                   |
+  | Role                 | INT          |                   |
+  +----------------------+--------------+-------------------+
 
   Branches Table
   +-------------------------+------------------+----------------------------+
@@ -40,13 +42,21 @@
   | AcceptationStatus       | INT              |                            |
   +-------------------------+------------------+----------------------------+
 
-    Tokens Table
+    LoginTokens Table
   +------------------+--------------+-----------------------------+
   | Field Name       | Data Type    | Constraints                 |
   +------------------+--------------+-----------------------------+
-  | TokenID          | INT          | PRIMARY KEY                 |
   | UserID           | INT          | FOREIGN KEY (Users.ID)      |
-  | TokenValue       | VARCHAR(255) |                             |
+  | TokenValue       | VARCHAR(255) | PRIMARY KEY                 |
+  | ExpiryDate       | TIMESTAMP    |                             |
+  +------------------+--------------+-----------------------------+
+
+    ResetTokens Table
+  +------------------+--------------+-----------------------------+
+  | Field Name       | Data Type    | Constraints                 |
+  +------------------+--------------+-----------------------------+
+  | UserID           | INT          | FOREIGN KEY (Users.ID)      |
+  | TokenValue       | VARCHAR(255) | PRIMARY KEY                 |
   | ExpiryDate       | TIMESTAMP    |                             |
   +------------------+--------------+-----------------------------+
 

@@ -18,6 +18,23 @@ export class UserAccountDatabase {
         const userCount = rows[0].count;
         return userCount > 0;
     }
+
+    async verifyPassword(email: string, password: string){
+        const getPasswordQuery = 'SELECT Password FROM Users WHERE Email = ?';
+        const userRows = await this.connector.executeSQL(getPasswordQuery, [email]);
+
+        if (userRows.length === 0) {
+            //user not found
+            return false;
+        }
+        const user = userRows[0];
+
+        const hashedPassword = user.Password;
+
+        const passwordMatch = await bcrypt.compare(password, hashedPassword);
+        return passwordMatch;
+    }
+
     /**
      *
      * @param {String} email
@@ -25,21 +42,13 @@ export class UserAccountDatabase {
      * @returns Newly generated token if succesfull or null if not able to autheticate
      */
     async authenticateUser(email: string, password: string) {
-        const getPasswordQuery = 'SELECT Password, ID FROM Users WHERE Email = ?';
-        const userRows = await this.connector.executeSQL(getPasswordQuery, [email]);
+        const [user, passwordCorrect] = await Promise.all([this.getUserByEmail(email), this.verifyPassword(email, password)]);
 
-        if (userRows.length === 0) {
+        if (user === null) {
             //user not found
             return null;
         }
-        const user = userRows[0];
-
-        const hashedPassword = user.Password;
-
-        const passwordMatch = await bcrypt.compare(password, hashedPassword);
-
-        if (!passwordMatch) {
-            //invalid password
+        if(!passwordCorrect){
             return null;
         }
 
@@ -88,7 +97,7 @@ export class UserAccountDatabase {
      * @param {String} token
      * @returns Null is none found, an object with an ID, Email and Role attribute if found.
      */
-    async getTokensUser(token: string) {
+    async getUserByToken(token: string) {
         const sql = `SELECT Users.Email, Users.Role, Users.ID
         FROM Users
         INNER JOIN Tokens ON Users.ID = Tokens.UserID
@@ -107,5 +116,40 @@ export class UserAccountDatabase {
 
     purgeAllTokens(ID: number) {
         throw new Error("Method not implemented.");
+    }
+
+    async getUserByEmail(email){
+        const sql = `SELECT * FROM User WHERE Email = ?`;
+        let result = await this.connector.executeSQL(sql, [email]);
+        if (result.length == 0) {
+            return null;
+        }
+        return result[0];
+    }
+
+    async verifyResetToken(email, resetToken){
+        const result = await this.connector.executeSQL(
+            'SELECT COUNT(*) as count FROM Tokens WHERE Email = ? AND ResetToken = ? AND ResetTokenExpiryDate > CURRENT_TIMESTAMP()',
+            [email, resetToken]);
+        return result.count == 1;
+    }
+
+    async purgeResetToken(email){
+        await this.connector.executeSQL(
+            `UPDATE Users
+            SET ResetToken = NULL, ResetTokenExpiryDate = 1970-01-01 12:00:00
+            WHERE Email = ?;`,
+            [email]);
+    }
+
+    async makeNewForgottenToken(email){
+        const token = uuid4();
+        let validUntil = new Date(Date.now() + new Date(process.env.PASSWORDFORGOTTENEXPIRATIONTIME).getMilliseconds());
+        await this.connector.executeSQL(
+            `UPDATE Users
+            SET ResetToken = ?, ResetTokenExpiryDate = ?
+            WHERE Email = ?;`,
+            [token, validUntil, email]);
+        return token;
     }
 }

@@ -5,9 +5,10 @@ import { Startup } from './startupchecks.js';
 import express from 'express';
 import { isDev } from './util.js';
 import fs from "fs";
-import {register, login, logout, logoutSpecificToken} from "./loginsystem/endpoints.js";
+import {register, login, logout, logoutSpecificToken, changePassword, changePasswordForgotten, massCreateAccounts} from "./loginsystem/endpoints.js";
 import bodyParser from "body-parser";
 import session from "express-session";
+import { AuthProtect } from './loginsystem/authentication.js';
 
 var app = express();
 
@@ -40,6 +41,9 @@ app.post("/login", login);
 app.post("/register", register);
 app.post("/logout", logout);
 app.post("/logoutSpecicificToken", logoutSpecificToken);
+app.post("/changePassword", changePassword);
+app.post("/changePasswordForgotten", changePasswordForgotten);
+app.post("/massCreateAccounts", AuthProtect(massCreateAccounts, "Admin"));
 
 //General error handling
 app.use(function(err, req, res, next) {

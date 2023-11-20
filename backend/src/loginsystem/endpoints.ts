@@ -1,4 +1,5 @@
 import {userAccountDatabase as database} from "../globals.js";
+import { sendPasswordForgottenMail } from "./utils.js";
 
 /**
  * Handles user registration. Expects the fields email and password in the POST
@@ -97,16 +98,70 @@ export async function logoutSpecificToken(req, res) {
 }
 
 export async function changePassword(req, res){
-    const {token, email, newPassword} = req.body.specificToken;
+    const {email, oldPassword, newPassword} = req.body.specificToken;
 
-    if (!token || !email || !newPassword) {
-        return res.status(400).json({ error: 'token, email and newPassword required.' });
+    if (!oldPassword || !email || !newPassword) {
+        return res.status(400).json({ error: 'email, oldPassword and newPassword required.' });
     }
-    let user = await database.getTokensUser(token);
-    if(user == null){
-        return res.status(401).json({ error: 'Invalid token, could not find valid token associated with username.' });
+    if(!database.verifyPassword(email, oldPassword)){
+        return res.status(401).json({ error: 'Invalid username or password.' });
     }
-    await database.changePassword(email, newPassword);
-    await database.purgeAllTokens(user.ID);
+    let user = await database.getUserByEmail(email);
+    await Promise.all([database.changePassword(email, newPassword), database.purgeAllTokens(user.ID)]);
     res.status(200).json({message: "Password succesfully changed."});
+}
+
+export async function changePasswordForgotten(req, res){
+    const {email, newPassword, resetToken} = req.body.specificToken;
+
+    if (!resetToken || !email || !newPassword) {
+        return res.status(400).json({ error: 'email, resetToken and newPassword required.' });
+    }
+    if(!await database.verifyResetToken(email, resetToken)){
+        return res.status(401).json({ error: 'Invalid reset token' });
+    }
+    await Promise.all([
+        database.changePassword(email, newPassword),
+        database.purgeResetToken(email)
+    ]);
+    return res.status(200).json({ message: 'Password succesfully changed' });
+}
+
+async function forgotPasswordProcedure(email){
+    let token = await database.makeNewForgottenToken(email);
+    await sendPasswordForgottenMail(email, "Wachtwoord resetten", "Ga naar <a href=''>unfinished link</a>")//TODO get a better system for mail text
+}
+
+export async function forgotPassword(req, res){
+    const {email} = req.body.specificToken;
+    if (!email) {
+        return res.status(400).json({ error: 'email required.' });
+    }
+    await forgotPasswordProcedure(email);
+    return res.status(200).json({ message: 'Email send' });
+}
+
+async function checkAndCreateAccount(mail){
+    if(await database.userExists(mail)){
+        throw new Error("User " + mail + " already exists");
+    }
+    let password = Array.from(Array(20), () => Math.floor(Math.random() * 36).toString(36)).join('');
+    await database.registerUser(mail, password);
+    await forgotPasswordProcedure(mail);
+    return;
+}
+
+export async function massCreateAccounts(req, res){
+    const jsonList = req.body.data;
+    if (!jsonList || !Array.isArray(jsonList)) {
+        return res.status(400).json({ error: 'Invalid JSON list format' });
+    }
+    let results = await Promise.allSettled(jsonList.map(checkAndCreateAccount));
+    let rejected = results.filter(x => x.status == "rejected");
+    if(rejected.length > 0){
+        // @ts-ignore : reason exists if it is rejected 
+        let joinedReasons = rejected.map(x => ((x.reason)).join(", ");
+        return res.status(200).json({ message: 'Following errors found: ' + joinedReasons});
+    }
+    return res.status(200).json({message: 'Ok'});
 }

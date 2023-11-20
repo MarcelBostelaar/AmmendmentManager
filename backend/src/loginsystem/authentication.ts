@@ -1,43 +1,39 @@
 import {userAccountDatabase as database} from "../globals.js";
 
-export const AuthRequirements = {
-	None: 0,
-	LoggedIn: 1,
-	Admin: 2
-}
-
-export async function AuthProtect(func, authLevel, req, res){
-    if (authLevel === AuthRequirements.None) {
-        return func(req, res);
-    }
-
-    const token = req.body.token;
-
-    if (!token) {
-        return NotLoggedinResponse(res);
-    }
-
-    const tokenExists = await database.tokenExists(token);
-    if (!tokenExists) {
-        return NotLoggedinResponse(res);
-    }
-
-    if (authLevel === AuthRequirements.LoggedIn) {
-        return func(req, res);
-    }
-
-    if (authLevel === AuthRequirements.Admin) {
-        let isAdmin = await database.isAdmin(token);
-
-        if (isAdmin) {
+export function AuthProtect(func, authLevel : "None" | "LoggedIn" | "Admin"){
+    return async function(req, res){
+        if (authLevel === "None") {
             return func(req, res);
-        } else {
-            return NotAutheticatedResponse(res);
         }
-    }
 
-    console.log('Unhandled authentication option: ' + authLevel.toString());
-    return res.status(500).send({ message: 'Internal server error' });
+        const token = req.body.token;
+
+        if (!token) {
+            return NotLoggedinResponse(res);
+        }
+
+        const tokenExists = await database.tokenExists(token);
+        if (!tokenExists) {
+            return NotLoggedinResponse(res);
+        }
+
+        if (authLevel === "LoggedIn") {
+            return func(req, res);
+        }
+
+        if (authLevel === "Admin") {
+            let isAdmin = await database.isAdmin(token);
+
+            if (isAdmin) {
+                return func(req, res);
+            } else {
+                return NotAutheticatedResponse(res);
+            }
+        }
+
+        console.log('Unhandled authentication option: ' + authLevel);
+        return res.status(500).send({ message: 'Internal server error' });
+    }
 }
 
 function NotAutheticatedResponse(res){
