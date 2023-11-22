@@ -4,19 +4,14 @@ WORKDIR /backend
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm install && npm install typescript -g
 
-
-
-
-
-
-
+COPY . .
+# Compile the typescript
+RUN tsc
 
 RUN git config --global user.email "standard@internal.mail"
 RUN git config --global user.name "Standard Name"
-
-COPY . .
 
 ENV PORT=8080
 ENV NODE_ENV development

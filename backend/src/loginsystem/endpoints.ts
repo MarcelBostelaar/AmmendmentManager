@@ -160,7 +160,7 @@ export async function massCreateAccounts(req, res){
     let rejected = results.filter(x => x.status == "rejected");
     if(rejected.length > 0){
         // @ts-ignore : reason exists if it is rejected 
-        let joinedReasons = rejected.map(x => ((x.reason)).join(", ");
+        let joinedReasons = rejected.map(x => ((x.reason)).join(", "));
         return res.status(200).json({ message: 'Following errors found: ' + joinedReasons});
     }
     return res.status(200).json({message: 'Ok'});

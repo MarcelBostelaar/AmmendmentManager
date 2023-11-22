@@ -4,7 +4,7 @@
   "description": "test",
   "main": "src/index.js",
   "scripts": {
-    "startdev": "tsc -w & nodemon --inspect=0.0.0.0:9229 --signal SIGINT --nolazy dist/index.js",
+    "startdev": "nodemon --inspect=9229 -e ts,tsx --exec node -r ts-node/register ./src/index.ts",
     "start": "node dist/index.js",
     "test": "npx jest"
   },
@@ -36,10 +36,12 @@
     "@types/express-session": "^1.17.10",
     "@types/jest": "^29.5.8",
     "@types/node": "^20.9.0",
+    "@types/nodemailer": "^6.4.14",
     "@types/uuid4": "^2.0.3",
     "@typescript-eslint/parser": "^6.11.0",
     "jest": "^29.7.0",
     "nodemon": "^2.0.22",
+    "npx": "^10.2.2",
     "ts-node": "^10.9.1",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.2.2"

@@ -1,12 +1,14 @@
 version: "3.8"
 services:
   frontend:
+    restart: always
     build: "/frontend"
     ports:
       - 8080:80
     volumes:
       - ./frontend/build:/usr/share/nginx/html # directly mount build code to speed up development
   backend:
+    restart: always
     build: 
       context: ./backend
       dockerfile: DockerfileDev   
@@ -23,7 +25,12 @@ services:
       - MYSQL_PASSWORD=${PASSWORD}
       - SECRETSESSIONKEY=${SECRETSESSIONKEY}
       - DBCONNECTIONLIMIT=${DBCONNECTIONLIMIT}
+      - MAILSERVICE=${MAILSERVICE}
+      - MAILUSER=${MAILUSER}
+      - MAILPASSWORD=${MAILPASSWORD}
+      - PASSWORDFORGOTTENEXPIRATIONTIME=${PASSWORDFORGOTTENEXPIRATIONTIME}
   db:
+    restart: always
     build: "/database"
     ports:
       - 3306:3306
