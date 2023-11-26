@@ -4,7 +4,7 @@
   "description": "test",
   "main": "src/index.js",
   "scripts": {
-    "startdev": "nodemon --inspect=9229 -e ts,tsx --exec node -r ts-node/register ./src/index.ts",
+    "startdev": "nodemon --exec 'node -r esm --inspect=0.0.0.0:9229 --require ts-node/register src/index.ts'",
     "start": "node dist/index.js",
     "test": "npx jest"
   },
@@ -22,6 +22,7 @@
     "bcrypt": "^5.1.1",
     "body-parser": "^1.20.2",
     "cookie-parser": "^1.4.6",
+    "esm": "^3.2.25",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
     "mysql2": "^3.6.3",
