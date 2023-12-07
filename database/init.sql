@@ -40,7 +40,7 @@ CREATE TABLE Commits (
 );
 
 -- Tokens Table
-CREATE TABLE LoginTokens (
+CREATE TABLE Tokens (
     TokenValue VARCHAR(255) PRIMARY KEY,
     UserID INT,
     ExpiryDate TIMESTAMP,
@@ -55,5 +55,5 @@ DO
 DELETE LOW_PRIORITY FROM Tokens WHERE ExpiryDate < CURRENT_TIMESTAMP();
 
 /*Inserts user admin with password admin with role admin*/
-INSERT INTO Users (Email, Password, Role) VALUES ('admin', '$2y$10$igcybWOFjVd6L4D1L08oI.3gqOf5bmyG.Pw06WSu/ZzdxW8ivNvrG', 1);
+INSERT INTO Users (Email, Password, Role) VALUES ('admin', '$2b$10$VRGH0siiY1Mt2.XsX/5MpOeaLiJf09ZvqtbGiNulFDnAvjoMmjxRe', 1);
 

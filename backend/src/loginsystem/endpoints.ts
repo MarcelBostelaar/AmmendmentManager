@@ -1,4 +1,5 @@
 import {userAccountDatabase as database} from "../globals.js";
+import { anyUndefined, isUndefined } from "../util.js";
 import { sendPasswordForgottenMail } from "./utils.js";
 
 /**
@@ -12,7 +13,7 @@ import { sendPasswordForgottenMail } from "./utils.js";
 export async function register(req, res) {
     const { email, password } = req.body;
 
-    if (!email || !password) {
+    if (anyUndefined(email, password)) {
         return res.status(400).json({ error: 'Email and password are required.' });
     }
 
@@ -40,13 +41,13 @@ export async function register(req, res) {
 export async function login(req, res) {
     const { email, password, stayLoggedIn } = req.body;
 
-    if (!email || !password || !stayLoggedIn) {
+    if (anyUndefined(email, password, stayLoggedIn)) {
         return res.status(400).json({ error: 'email, password and stayLoggedIn are required.' });
     }
 
     const token = await database.authenticateUser(email, password);
     let tokenOptions = {};
-    if(!stayLoggedIn){
+    if(!stayLoggedIn){ 
         //Ensures cookies is deleted from browser when browser closes.
         tokenOptions = { expires: 0}
     }
@@ -69,7 +70,7 @@ export async function login(req, res) {
 export async function logout(req, res) {
     const token = req.body.token;
 
-    if (!token) {
+    if (isUndefined(token)) {
         return res.status(400).json({ error: 'Not logged in.' });
     }
 
@@ -89,7 +90,7 @@ export async function logout(req, res) {
 export async function logoutSpecificToken(req, res) {
     const specificToken = req.body.specificToken;
 
-    if (!specificToken) {
+    if (isUndefined(specificToken)) {
         return res.status(400).json({ error: 'No token sent.' });
     }
 
@@ -100,7 +101,7 @@ export async function logoutSpecificToken(req, res) {
 export async function changePassword(req, res){
     const {email, oldPassword, newPassword} = req.body.specificToken;
 
-    if (!oldPassword || !email || !newPassword) {
+    if (anyUndefined(oldPassword, email, newPassword)) {
         return res.status(400).json({ error: 'email, oldPassword and newPassword required.' });
     }
     if(!database.verifyPassword(email, oldPassword)){
@@ -114,7 +115,7 @@ export async function changePassword(req, res){
 export async function changePasswordForgotten(req, res){
     const {email, newPassword, resetToken} = req.body.specificToken;
 
-    if (!resetToken || !email || !newPassword) {
+    if (anyUndefined(resetToken, email, newPassword)) {
         return res.status(400).json({ error: 'email, resetToken and newPassword required.' });
     }
     if(!await database.verifyResetToken(email, resetToken)){
@@ -134,7 +135,7 @@ async function forgotPasswordProcedure(email){
 
 export async function forgotPassword(req, res){
     const {email} = req.body.specificToken;
-    if (!email) {
+    if (isUndefined(email)) {
         return res.status(400).json({ error: 'email required.' });
     }
     await forgotPasswordProcedure(email);
@@ -153,7 +154,7 @@ async function checkAndCreateAccount(mail){
 
 export async function massCreateAccounts(req, res){
     const jsonList = req.body.data;
-    if (!jsonList || !Array.isArray(jsonList)) {
+    if (isUndefined(jsonList) || !Array.isArray(jsonList)) {
         return res.status(400).json({ error: 'Invalid JSON list format' });
     }
     let results = await Promise.allSettled(jsonList.map(checkAndCreateAccount));

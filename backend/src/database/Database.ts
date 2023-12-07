@@ -1,7 +1,8 @@
-import mysql from "mysql2";
+import mysql, { Pool, Query } from "mysql2";
+import { promisify } from "util";
 
 export default class MySqlDatabaseConnector{
-    private pool;
+    private pool : Pool;
     constructor(config) {
         this.pool = mysql.createPool(config);
     }
@@ -11,13 +12,21 @@ export default class MySqlDatabaseConnector{
     }
 
     async executeSQL(sql, values = []){
-        const connection = await this.pool.getConnection();
-        console.log('Connected to the MySQL server.');
-     
-        const [rows, fields] = await connection.execute(sql, values);
-
-        connection.release();
-        return rows;
+        let pool = this.pool;
+        let query = new Promise(
+            function(onResolve, onReject){
+                let x = pool.query(sql, values, 
+                    function(err, results, fields) {
+                        if(err){
+                            onReject(err);
+                            return;
+                        }
+                        onResolve(results);
+                    }
+                  );
+            }
+        )
+        return await query;
     }
 }
 

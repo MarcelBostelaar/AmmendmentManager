@@ -30,7 +30,6 @@ export class UserAccountDatabase {
         const user = userRows[0];
 
         const hashedPassword = user.Password;
-
         const passwordMatch = await bcrypt.compare(password, hashedPassword);
         return passwordMatch;
     }
@@ -54,7 +53,7 @@ export class UserAccountDatabase {
 
         const token = uuid4();
         let validUntil = new Date(Date.now() + new Date(process.env.TOKENEXPIRATIONTIME).getMilliseconds());
-        await this.connector.executeSQL('INSERT INTO Tokens (UserID, TokenValue, ExpiryDate) VALUES (?, ?, ?)', [token, user.ID, validUntil]);
+        await this.connector.executeSQL('INSERT INTO Tokens (UserID, TokenValue, ExpiryDate) VALUES (?, ?, ?)', [user.ID, token, validUntil]);
         return token;
     }
 
@@ -119,7 +118,7 @@ export class UserAccountDatabase {
     }
 
     async getUserByEmail(email){
-        const sql = `SELECT * FROM User WHERE Email = ?`;
+        const sql = `SELECT * FROM Users WHERE Email = ?`;
         let result = await this.connector.executeSQL(sql, [email]);
         if (result.length == 0) {
             return null;
